@@ -31,7 +31,7 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === 'GET') {
-        return res.status(200).send("Hello World");
+        return res.status(200).json("Hello World");
     }
 
     if (req.method !== 'POST') {
@@ -78,7 +78,7 @@ module.exports = async (req, res) => {
 
     const clinicNamesString = clinicsWithService.join(', ');
 
-    return res.json({
+    return res.status(200).json({
         clinics: clinicNamesString
     });
 };
