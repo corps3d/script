@@ -1,5 +1,15 @@
-// api/webhook.js
-
-module.exports = async (req, res) => {
-    res.status(200).json({ message: "Hello, world!" });
-};
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "api/webhook.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "api/webhook.js"
+    }
+  ]
+}
