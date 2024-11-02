@@ -38,11 +38,12 @@ module.exports = async (req, res) => {
         return res.status(405).json({ error: "Only POST requests are allowed" });
     }
 
-    // Parse the plain/text body
+    // Ensure body is parsed as JSON
     let requestBody;
     try {
         requestBody = JSON.parse(req.body.trim());
     } catch (error) {
+        console.error('Error parsing JSON:', error); // Log the error
         return res.status(400).json({ error: "Invalid JSON format" });
     }
 
