@@ -31,11 +31,15 @@ module.exports = async (req, res) => {
         return res.status(200).end(); // Handle preflight request
     }
 
+    if (req.method === 'GET') {
+        return res.status(200).send("Hello World")
+    }
+
     if (req.method !== 'POST') {
         return res.status(405).json({ error: "Only POST requests are allowed" });
     }
 
-    const serviceName = req.body.service_name;
+    const serviceName = JSON.parse(req.body.trim()).service_name;
     if (!serviceName) {
         return res.status(400).json({
             error: "Please provide service_name in the request body"
