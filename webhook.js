@@ -6,7 +6,7 @@ const app = express();
 app.use(express.json());
 
 // Load data from CSV file
-function loadDataFromCsv(filePath) {
+async function loadDataFromCsv(filePath) {
     return new Promise((resolve, reject) => {
         const data = [];
         fs.createReadStream(filePath)
@@ -17,7 +17,7 @@ function loadDataFromCsv(filePath) {
     });
 }
 
-// Load the data when the server starts
+// Load the data
 let data = [];
 loadDataFromCsv('services data.csv').then((loadedData) => {
     data = loadedData;
@@ -27,20 +27,14 @@ loadDataFromCsv('services data.csv').then((loadedData) => {
 
 // Webhook endpoint
 app.post('/webhook', (req, res) => {
-    console.log("Full request object:", req.body);
-
-    // Extract service name from post data
     const serviceName = req.body.service_name;
-    console.log("Extracted service name:", serviceName);
 
-    // Validate the service name
     if (!serviceName) {
         return res.status(400).json({
             error: "Please provide service_name in the request body"
         });
     }
 
-    // Extract headers and check if service exists
     const sheetHeaders = Object.keys(data[0]);
     const serviceIndex = sheetHeaders.indexOf(serviceName);
 
@@ -52,15 +46,12 @@ app.post('/webhook', (req, res) => {
         });
     }
 
-    // Filter clinics that offer the service
     const clinicsWithService = data
         .filter(row => row[serviceName] === "Yes")
         .map(row => row[sheetHeaders[0]]);
 
-    // Join clinic names into a single string
     const clinicNamesString = clinicsWithService.join(', ');
 
-    // Return the filtered list of clinics
     return res.json({
         clinics: clinicNamesString
     });
@@ -74,7 +65,5 @@ app.get('/health', (req, res) => {
     });
 });
 
-const PORT = 5000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+// Export the app as a serverless function
+module.exports = app;
