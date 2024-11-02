@@ -1,17 +1,18 @@
 const axios = require('axios');
-const parse = require('csv-parse/lib/sync'); // Import synchronous CSV parser
+const parse = require('csv-parse/lib/sync');
 
+// Function to load and parse CSV data from a public URL
 async function loadDataFromCsv() {
     try {
-        const response = await axios.get('https://https://script-dag320xn7-c0rpseds-projects.vercel.app/services%20data.csv'); // Use URL-encoded spaces
-
+        const response = await axios.get('https://script-dag320xn7-c0rpseds-projects.vercel.app/services%20data.csv');
+        
         // Parse CSV data from response
         const records = parse(response.data, {
-            columns: true, // Use first row as header
+            columns: true,
             skip_empty_lines: true,
         });
 
-        console.log("Loaded data:", records); // For debugging, check parsed data
+        console.log("Loaded data:", records); // Debugging: check parsed data
         return records;
     } catch (error) {
         console.error('Error loading CSV data:', error);
@@ -19,27 +20,23 @@ async function loadDataFromCsv() {
     }
 }
 
-// Usage example
-loadDataFromCsv().then(data => {
-    console.log("Parsed CSV Data:", data);
-});
+// Main handler for the webhook function
+module.exports = async (req, res) => {
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: "Only POST requests are allowed" });
+    }
 
-// Load the data
-let data = [];
-loadDataFromCsv('services data.csv').then((loadedData) => {
-    data = loadedData;
-}).catch((error) => {
-    console.error('Error loading CSV data:', error);
-});
-
-// Webhook endpoint
-app.post('/webhook', (req, res) => {
     const serviceName = req.body.service_name;
-
     if (!serviceName) {
         return res.status(400).json({
             error: "Please provide service_name in the request body"
         });
+    }
+
+    let data = await loadDataFromCsv();  // Load data at request time
+
+    if (data.length === 0) {
+        return res.status(500).json({ error: "Failed to load data from CSV" });
     }
 
     const sheetHeaders = Object.keys(data[0]);
@@ -53,6 +50,7 @@ app.post('/webhook', (req, res) => {
         });
     }
 
+    // Filter clinics that offer the service
     const clinicsWithService = data
         .filter(row => row[serviceName] === "Yes")
         .map(row => row[sheetHeaders[0]]);
@@ -62,15 +60,4 @@ app.post('/webhook', (req, res) => {
     return res.json({
         clinics: clinicNamesString
     });
-});
-
-// Health endpoint
-app.get('/health', (req, res) => {
-    res.json({
-        message: "This endpoint requires a POST request with service_name",
-        status: "alive"
-    });
-});
-
-// Export the app as a serverless function
-module.exports = app;
+};
