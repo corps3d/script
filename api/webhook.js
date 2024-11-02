@@ -1,13 +1,14 @@
-const axios = require('axios');
+const fs = require('fs');
+const path = require('path');
 const parse = require('csv-parse/lib/sync');
 
-// Function to load and parse CSV data from a public URL
 async function loadDataFromCsv() {
     try {
-        const response = await axios.get('https://script-dag320xn7-c0rpseds-projects.vercel.app/services%20data.csv');
+        const filePath = path.join("./api", 'services data.csv');
+        const fileContent = fs.readFileSync(filePath, 'utf-8');
         
-        // Parse CSV data from response
-        const records = parse(response.data, {
+        // Parse CSV data
+        const records = parse(fileContent, {
             columns: true,
             skip_empty_lines: true,
         });
@@ -19,6 +20,7 @@ async function loadDataFromCsv() {
         return [];
     }
 }
+
 
 module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
