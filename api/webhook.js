@@ -26,18 +26,10 @@ module.exports = async (req, res) => {
     res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end(); // Handle preflight request
-    }
-
     if (req.method === 'GET') {
         return res.status(200).json("Hello World");
     }
-
-    if (req.method !== 'POST') {
-        return res.status(405).json({ error: "Only POST requests are allowed" });
-    }
-
+    if(req.method === 'POST') {
     // Ensure body is parsed as JSON
     let requestBody;
     try {
@@ -81,4 +73,5 @@ module.exports = async (req, res) => {
     return res.status(200).json({
         clinics: clinicNamesString
     });
+    }
 };
