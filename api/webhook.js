@@ -1,21 +1,28 @@
-const express = require('express');
-const fs = require('fs');
-const csv = require('csv-parser');
+const axios = require('axios');
+const parse = require('csv-parse/lib/sync'); // Import synchronous CSV parser
 
-const app = express();
-app.use(express.json());
+async function loadDataFromCsv() {
+    try {
+        const response = await axios.get('https://https://script-dag320xn7-c0rpseds-projects.vercel.app/services%20data.csv'); // Use URL-encoded spaces
 
-// Load data from CSV file
-async function loadDataFromCsv(filePath) {
-    return new Promise((resolve, reject) => {
-        const data = [];
-        fs.createReadStream(filePath)
-            .pipe(csv())
-            .on('data', (row) => data.push(row))
-            .on('end', () => resolve(data))
-            .on('error', (error) => reject(error));
-    });
+        // Parse CSV data from response
+        const records = parse(response.data, {
+            columns: true, // Use first row as header
+            skip_empty_lines: true,
+        });
+
+        console.log("Loaded data:", records); // For debugging, check parsed data
+        return records;
+    } catch (error) {
+        console.error('Error loading CSV data:', error);
+        return [];
+    }
 }
+
+// Usage example
+loadDataFromCsv().then(data => {
+    console.log("Parsed CSV Data:", data);
+});
 
 // Load the data
 let data = [];
