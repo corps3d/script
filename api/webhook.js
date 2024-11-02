@@ -1,36 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-const parse = require('csv-parse/lib/sync');
-
-async function loadDataFromCsv() {
-    try {
-        const filePath = path.join("./api", 'services data.csv');
-        const fileContent = fs.readFileSync(filePath, 'utf-8');
-        
-        // Parse CSV data
-        const records = parse(fileContent, {
-            columns: true,
-            skip_empty_lines: true,
-        });
-
-        console.log("Loaded data:", records); // Debugging: check parsed data
-        return records;
-    } catch (error) {
-        console.error('Error loading CSV data:', error);
-        return [];
-    }
-}
 
 module.exports = async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', 'POST, GET, OPTIONS');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-    
+
     if (req.method === 'GET') {
         return res.status(200).json("Hello World");
     }
     if(req.method === 'POST') {
-    // Ensure body is parsed as JSON
     let requestBody;
     try {
         requestBody = JSON.parse(req.body.trim());
